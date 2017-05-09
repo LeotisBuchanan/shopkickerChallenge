@@ -1,0 +1,6 @@
+*.class
+*.xml
+*.properties
+target
+*.sc
+*.iml

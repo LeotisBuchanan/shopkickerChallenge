@@ -2,8 +2,14 @@
   * Created by yardman on 5/8/17.
   */
 
+
+
+
 object Lexer extends App {
 
+
+
+  val stackMachine = new StackMachine()
 
   val p1 = """11 22 + 2 * print"""
   val p2 = """1 2 + 3 + 6 * print"""
@@ -15,30 +21,44 @@ object Lexer extends App {
   println(tokens)
 
 
-  val types = parse(tokens)
+  val instructionList:List[Lexeme] = parse(tokens)
 
-  def parse(tokens: List[String]): List[Object] = {
+  stackMachine.interpret(instructionList)
+
+  def parse(tokens: List[String]): List[Lexeme] = {
 
 
     val numberPattern = raw"(\d+)".r
     val keywordPattern = raw"(compile|end|define|print)".r
-    val operatorPattern = raw"(-|\+|\*)".r
+    val compilePattern = raw"(compile)".r
+    val endPattern = raw"(end)".r
+    val definePattern = raw"(define)".r
+    val printPattern = raw"(print)".r
+    val substractPattern = raw"(-)".r
+    val addPattern = raw"(\+)".r
+    val multPattern = raw"(\*)".r
     val functionPattern = raw"(\w+)".r
     val stringPattern = raw"""("\w+")""".r
 
     val lexemes = tokens.map(token => {
 
       token match {
-        case numberPattern(number) => NumberLexeme(number)
-        case keywordPattern(keyword) => KeywordLexeme(keyword)
-        case operatorPattern(op) => OperatorLexeme(op)
-        case stringPattern(string) => StringLexeme(string)
-        case functionPattern(functionName) => FunctionNameLexeme(functionName)
-        case _ => NotRecognizedLexeme
+        case numberPattern(number) => Lexeme(number,LexemeType.NumberType )
+        case compilePattern(keyword) => Lexeme(keyword,LexemeType.CompileType)
+        case endPattern(keyword) => Lexeme(keyword,LexemeType.EndType)
+        case printPattern(keyword)   => Lexeme(keyword, LexemeType.PrintType)
+        case definePattern(keyword) => Lexeme(keyword, LexemeType.DefineType)
+        case multPattern(op) =>     Lexeme(op, LexemeType.MultiplicationType)
+        case substractPattern(op) => Lexeme(op, LexemeType.SubstractionType)
+        case addPattern(op)  => Lexeme(op, LexemeType.AdditionType)
+        case stringPattern(string) =>    Lexeme(string, LexemeType.StringType)
+        case functionPattern(functionName) => Lexeme(functionName,LexemeType.FunctionType)
+        case _ =>  Lexeme("error", LexemeType.ErrorType)
       }
 
     })
 
+    //return the lexemes
     lexemes
 
   }
@@ -59,21 +79,7 @@ object Lexer extends App {
 }
 
 
-abstract class Lexeme
-
-case class NumberLexeme(value:String) extends Lexeme
-
-case class KeywordLexeme(value: String) extends Lexeme
-
-case class StringLexeme(value: String) extends Lexeme
-
-case class OperatorLexeme(value: String) extends Lexeme
-
-case class NotRecognizedLexeme() extends Lexeme
-
-case class FunctionNameLexeme(name: String) extends Lexeme
-
-
+case class Lexeme(value:String, lexemeType:LexemeType.Value)
 
 
 
